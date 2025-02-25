@@ -4,9 +4,12 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
     .then(data => {
         const dataset = data.monthlyVariance;
         const baseTemperature = data.baseTemperature;
-        const years = [...new Set(dataset.map(d => d.year))];
+
+        // Plage des années de 1750 à 2015 avec un intervalle de 10 ans
+        const years = d3.range(1750, 2016, 10);  // Crée un tableau d'années de 1750 à 2015 avec un pas de 10
+
         const months = [...new Set(dataset.map(d => d.month))];
-        
+
         // Configuration des dimensions
         const margin = {top: 50, right: 50, bottom: 100, left: 60};
         const width = 960 - margin.left - margin.right;
@@ -51,7 +54,7 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
                 return monthNames[d - 1];
             });
 
-        // Ajouter les axes X avec des labels espacés et inclinés
+        // Ajouter les axes X avec un intervalle de 10 ans
         svg.append('g')
             .selectAll('.x-axis')
             .data(years)
@@ -61,25 +64,6 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
             .attr('x', d => xScale(d) + xScale.bandwidth() / 2)
             .attr('y', height + margin.bottom - 10)
             .attr('text-anchor', 'middle')
-            .attr('transform', 'rotate(-45)') // Rotation des labels à -45 degrés
-            .text(d => d);
-
-        // Espacer les années si nécessaire : par exemple, afficher une année tous les 5 ans
-        const xScaleSpaced = d3.scaleBand()
-            .domain(years.filter((year, index) => index % 5 === 0)) // Afficher une année tous les 5 ans
-            .range([0, width])
-            .padding(0.05);
-
-        svg.append('g')
-            .selectAll('.x-axis-spaced')
-            .data(years.filter((year, index) => index % 5 === 0))
-            .enter()
-            .append('text')
-            .attr('class', 'x-axis-spaced')
-            .attr('x', d => xScaleSpaced(d) + xScaleSpaced.bandwidth() / 2)
-            .attr('y', height + margin.bottom - 10)
-            .attr('text-anchor', 'middle')
-            .attr('transform', 'rotate(-45)') // Rotation des labels à -45 degrés
             .text(d => d);
 
         // Ajouter les cellules de la carte thermique
@@ -141,4 +125,3 @@ fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/maste
             .attr('text-anchor', 'end')
             .text(`${baseTemperature + 5}°C`);
     });
-
